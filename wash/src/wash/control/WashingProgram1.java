@@ -57,7 +57,8 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             Thread.sleep(30 * 60000 / Settings.SPEEDUP);
 
             temp.send(new WashingMessage(this, TEMP_IDLE));
-            receive();
+            WashingMessage ma = receive();
+            System.out.println("goasdt " + ma);
             // Instruct SpinController to stop spin barrel spin.
             // Expect an acknowledgment in response.
             System.out.println("setting SPIN_OFF...");
@@ -78,14 +79,18 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
                 System.out.println("got " + ack5);
                 water.send(new WashingMessage(this, WATER_IDLE));
                 Thread.sleep(5 * 60000 / Settings.SPEEDUP);
-                spin.send(new WashingMessage(this, SPIN_SLOW));
-                receive();
                 water.send(new WashingMessage(this, WATER_DRAIN));
                 receive();
             }
+            water.send(new WashingMessage(this, WATER_IDLE));
             spin.send(new WashingMessage(this, SPIN_FAST));
+            Thread.sleep(5 * 60000 / Settings.SPEEDUP);
             WashingMessage ack6 = receive();
             System.out.println("got " + ack6);
+            spin.send(new WashingMessage(this, SPIN_OFF));
+
+            receive();
+            io.lock(false);
 
 
            // io.lock(false);

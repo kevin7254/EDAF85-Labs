@@ -26,7 +26,6 @@ public class SpinController extends ActorThread<WashingMessage> {
                     order = m.getOrder();
                     switch (order) {
                         case SPIN_SLOW -> {
-                            io.drain(false);
                             order = WashingMessage.Order.SPIN_SLOW;
                             m.getSender().send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
                         }

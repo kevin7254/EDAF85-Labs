@@ -45,15 +45,18 @@ public class WaterController extends ActorThread<WashingMessage> {
                     }
                 }
                 if(order == WashingMessage.Order.WATER_FILL) {
-                    filled = !(io.getWaterLevel() < 10);
+                    if(io.getWaterLevel() < 10) {
+                        io.fill(true);
+                    } else {
+                        io.fill(false);
+                        sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
+                    }
                 } else if(order == WashingMessage.Order.WATER_DRAIN) {
-                    drained = !(io.getWaterLevel() > 0);
-                }
-                if(drained) {
-                    sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
-                }
-                if(filled) {
-                    sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
+                   if(io.getWaterLevel() > 0) {
+                          io.drain(true);
+                    } else {
+                        sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
+                    }
                 }
             }
         } catch (InterruptedException e) {
