@@ -7,8 +7,10 @@ public class TemperatureController extends ActorThread<WashingMessage> {
 
     private WashingIO io;
     private ActorThread<WashingMessage> sender;
-    private final double LOWER_BOUND = 0.000952;
-    private final double UPPER_BOUND = 0.0476;
+    private final double LOWER_BOUND = 0.000952 * 100; //????
+    private final double UPPER_BOUND = 0.0478 * 10;
+    private WashingMessage.Order order = WashingMessage.Order.TEMP_IDLE;
+    private int temperature = 0;
 
     public TemperatureController(WashingIO io) {
         this.io = io;
@@ -18,31 +20,25 @@ public class TemperatureController extends ActorThread<WashingMessage> {
     public void run() {
         try {
             while (true) {
-                WashingMessage m = receiveWithTimeout(1000 / Settings.SPEEDUP);
+                WashingMessage m = receiveWithTimeout(10000 / Settings.SPEEDUP);
                 if (m != null) {
                     sender = m.getSender();
-                    switch (m.getOrder()) {
+                    order = m.getOrder();
+                    switch (order) {
                         case TEMP_IDLE -> io.heat(false);
                         case TEMP_SET_40 -> {
-                            io.heat(true);
-                            while (io.getTemperature() < 40 - LOWER_BOUND) {
-                                Thread.sleep(1000 / Settings.SPEEDUP);
-                            }
-                            io.heat(false);
-                            sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
+                            temperature = 40;
                         }
                         case TEMP_SET_60 -> {
-                            io.heat(true);
-                            while (io.getTemperature() < 60 - LOWER_BOUND) {
-                                Thread.sleep(1000 / Settings.SPEEDUP);
-                            }
-                            io.heat(false);
-                            sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
+                            temperature = 60;
                         }
                         default -> throw new Error("Invalid command: " + m.getOrder());
                     }
-                } else {
-                    if (io.getTemperature() > UPPER_BOUND) {
+                }
+                if(order != WashingMessage.Order.TEMP_IDLE) {
+                    if(io.getTemperature() < temperature - 2 + LOWER_BOUND) {
+                        io.heat(true);
+                    } else if(io.getTemperature() > temperature - UPPER_BOUND) {
                         io.heat(false);
                     }
                 }

@@ -4,7 +4,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ActorThread<M> extends Thread {
 
-    LinkedBlockingQueue<M> queue = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<M> queue = new LinkedBlockingQueue<>();
 
     /** Called by another thread, to send a message to this thread. */
     public void send(M message) {

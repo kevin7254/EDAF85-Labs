@@ -10,33 +10,28 @@ public class SpinController extends ActorThread<WashingMessage> {
     private ActorThread<WashingMessage> water;
     private ActorThread<WashingMessage> spin;
     private int i;
+    private WashingMessage.Order order;
     public SpinController(WashingIO io) {
         this.io = io;
-        this.i = 0;
+        this.i = WashingIO.SPIN_LEFT;
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                WashingMessage m = receiveWithTimeout(1000 / Settings.SPEEDUP);
+                WashingMessage m = receiveWithTimeout(60000 / Settings.SPEEDUP);
                 if (m != null) {
                     System.out.println("washing spin got " + m);
-                    switch (m.getOrder()) {
+                    order = m.getOrder();
+                    switch (order) {
                         case SPIN_SLOW -> {
                             io.drain(false);
-                            if(i == 0) {
-                                io.setSpinMode(WashingIO.SPIN_RIGHT);
-                                i = 1;
-                            }
-                            else if(i == 1) {
-                                io.setSpinMode(WashingIO.SPIN_LEFT);
-                                i = 0;
-                            }
+                            order = WashingMessage.Order.SPIN_SLOW;
                             m.getSender().send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
                         }
                         case SPIN_FAST -> {
-                            io.drain(false);
+                            io.drain(true);
                             io.setSpinMode(WashingIO.SPIN_FAST);
                             m.getSender().send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
                         }
@@ -47,6 +42,10 @@ public class SpinController extends ActorThread<WashingMessage> {
                         }
                         default -> throw new Error("washing spin got unexpected message: " + m);
                     }
+                }
+                if(order == WashingMessage.Order.SPIN_SLOW) {
+                    i = (WashingIO.SPIN_RIGHT == i) ? WashingIO.SPIN_LEFT : WashingIO.SPIN_RIGHT; //ternary operator
+                    io.setSpinMode(i);
                 }
             }
         } catch (InterruptedException unexpected) {

@@ -42,7 +42,8 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             System.out.println("got " + ack1);
             water.send(new WashingMessage(this, WATER_IDLE));
             temp.send(new WashingMessage(this, TEMP_SET_40));
-            receive();
+            WashingMessage m = receive();
+            System.out.println("goht " + m);
 
 
             // Instruct SpinController to rotate barrel slowly, back and forth
@@ -52,10 +53,11 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             WashingMessage ack2 = receive();
             System.out.println("washing program 1 got " + ack2);
 
-            // Spin for five simulated minutes (one minute == 60000 milliseconds)
-            Thread.sleep(5 * 60000 / Settings.SPEEDUP);
+            // Spin for 30 simulated minutes (one minute == 60000 milliseconds)
+            Thread.sleep(30 * 60000 / Settings.SPEEDUP);
 
-
+            temp.send(new WashingMessage(this, TEMP_IDLE));
+            receive();
             // Instruct SpinController to stop spin barrel spin.
             // Expect an acknowledgment in response.
             System.out.println("setting SPIN_OFF...");
@@ -63,7 +65,30 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             WashingMessage ack3 = receive();
             System.out.println("washing program 1 got " + ack3);
 
-            io.lock(false);
+            // Instruct WaterController to drain water from barrel.
+            // Expect an acknowledgment in response.
+            System.out.println("setting WATER_DRAIN...");
+            water.send(new WashingMessage(this, WATER_DRAIN));
+            WashingMessage ack4 = receive();
+            System.out.println("washing program 1 got " + ack4);
+
+            for (int i = 0; i < 5; i++) {
+                water.send(new WashingMessage(this, WATER_FILL));
+                WashingMessage ack5 = receive();
+                System.out.println("got " + ack5);
+                water.send(new WashingMessage(this, WATER_IDLE));
+                Thread.sleep(5 * 60000 / Settings.SPEEDUP);
+                spin.send(new WashingMessage(this, SPIN_SLOW));
+                receive();
+                water.send(new WashingMessage(this, WATER_DRAIN));
+                receive();
+            }
+            spin.send(new WashingMessage(this, SPIN_FAST));
+            WashingMessage ack6 = receive();
+            System.out.println("got " + ack6);
+
+
+           // io.lock(false);
 
             // Instruct WaterController to drain water from barrel.
             // Expect an acknowledgment in response.
