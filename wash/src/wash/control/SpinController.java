@@ -11,6 +11,7 @@ public class SpinController extends ActorThread<WashingMessage> {
     private ActorThread<WashingMessage> spin;
     private int i;
     private WashingMessage.Order order;
+
     public SpinController(WashingIO io) {
         this.io = io;
         this.i = WashingIO.SPIN_LEFT;
@@ -42,7 +43,7 @@ public class SpinController extends ActorThread<WashingMessage> {
                         default -> throw new Error("washing spin got unexpected message: " + m);
                     }
                 }
-                if(order == WashingMessage.Order.SPIN_SLOW) {
+                if (order == WashingMessage.Order.SPIN_SLOW) {
                     i = (WashingIO.SPIN_RIGHT == i) ? WashingIO.SPIN_LEFT : WashingIO.SPIN_RIGHT; //ternary operator
                     io.setSpinMode(i);
                 }

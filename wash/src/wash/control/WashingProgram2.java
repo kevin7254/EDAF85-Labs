@@ -8,10 +8,10 @@ import static wash.control.WashingMessage.Order.*;
 /**
  * Program 3 for washing machine. This also serves as an example of how washing
  * programs can be structured.
- *
+ * <p>
  * This short program stops all regulation of temperature and water levels,
  * stops the barrel from spinning, and drains the machine of water.
- *
+ * <p>
  * It can be used after an emergency stop (program 0) or a power failure.
  */
 public class WashingProgram2 extends ActorThread<WashingMessage> {
@@ -24,8 +24,7 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
     public WashingProgram2(WashingIO io,
                            ActorThread<WashingMessage> temp,
                            ActorThread<WashingMessage> water,
-                           ActorThread<WashingMessage> spin)
-    {
+                           ActorThread<WashingMessage> spin) {
         this.io = io;
         this.temp = temp;
         this.water = water;
@@ -120,36 +119,6 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
 
             receive();
             io.lock(false);
-
-
-            // io.lock(false);
-
-            // Instruct WaterController to drain water from barrel.
-            // Expect an acknowledgment in response.
-            /*System.out.println("setting WATER_DRAIN...");
-
-            water.send(new WashingMessage(this, WATER_DRAIN));
-            WashingMessage ack3 = receive();
-            System.out.println("washing program 1 got " + ack3);
-
-            // Instruct WaterController to stop water regulation.
-
-            System.out.println("setting WATER_IDLE...");
-
-            water.send(new WashingMessage(this, WATER_IDLE));
-
-            // Instruct TemperatureController to stop heating.
-
-            System.out.println("setting TEMP_IDLE...");
-
-            temp.send(new WashingMessage(this, TEMP_IDLE));
-
-            // Wait for TemperatureController to acknowledge.
-
-            WashingMessage ack4 = receive();
-
-            System.out.println("washing program 1 got " + ack4);*/
-
         } catch (InterruptedException e) {
 
             // If we end up here, it means the program was interrupt()'ed:

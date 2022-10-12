@@ -8,10 +8,10 @@ import static wash.control.WashingMessage.Order.*;
 /**
  * Program 3 for washing machine. This also serves as an example of how washing
  * programs can be structured.
- *
+ * <p>
  * This short program stops all regulation of temperature and water levels,
  * stops the barrel from spinning, and drains the machine of water.
- *
+ * <p>
  * It can be used after an emergency stop (program 0) or a power failure.
  */
 public class WashingProgram1 extends ActorThread<WashingMessage> {
@@ -24,8 +24,7 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
     public WashingProgram1(WashingIO io,
                            ActorThread<WashingMessage> temp,
                            ActorThread<WashingMessage> water,
-                           ActorThread<WashingMessage> spin)
-    {
+                           ActorThread<WashingMessage> spin) {
         this.io = io;
         this.temp = temp;
         this.water = water;

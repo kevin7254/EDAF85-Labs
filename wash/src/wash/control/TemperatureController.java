@@ -42,14 +42,14 @@ public class TemperatureController extends ActorThread<WashingMessage> {
                         default -> throw new Error("Invalid command: " + m.getOrder());
                     }
                 }
-                if(order != WashingMessage.Order.TEMP_IDLE) {
-                    if(io.getTemperature() < temperature - 2 + LOWER_BOUND) {
+                if (order != WashingMessage.Order.TEMP_IDLE) {
+                    if (io.getTemperature() < temperature - 2 + LOWER_BOUND) {
                         io.heat(true);
-                    } else if(io.getTemperature() > temperature - UPPER_BOUND) {
+                    } else if (io.getTemperature() > temperature - UPPER_BOUND) {
                         io.heat(false);
                         count++;
                     }
-                    if(count == 1) {
+                    if (count == 1) {
                         sender.send(new WashingMessage(this, WashingMessage.Order.ACKNOWLEDGMENT));
                         count++;
                     }
